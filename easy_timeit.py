@@ -81,9 +81,9 @@ def timeit(
     format_time = partial(_format_time, **format_time_kwargs)
     # Suppress printing if specified
     if print_output:
-        printfunc = lambda *a, **k: None  # noqa: E731
-    else:
         printfunc = print
+    else:
+        printfunc = lambda *a, **k: None  # noqa: E731
 
     # Set up Timer instances
     timer = Timer(stmt=stmt, setup=setup, timer=timer, globals=globals)
