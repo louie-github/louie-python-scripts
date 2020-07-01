@@ -106,6 +106,8 @@ def timeit(
             Whether to print the output of the timings in a similar format to
             the using `python -m timeit`. Defaults to True.
 
+        All other arguments are passed along to timeit.Timer.
+
     Returns:
         List[Int]: Raw timings per repetition, not per loop.
             The raw timings per repetition, when running the code with the
