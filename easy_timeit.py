@@ -6,15 +6,45 @@ import sys
 import warnings
 
 from functools import partial
+from typing import List, Tuple
 from timeit import default_repeat, default_timer, Timer
 
 
 # Source: Lib/timeit.py
 def _format_time(
-    seconds,
-    units=[(1e-09, "nsec"), (1e-06, "µsec"), (0.001, "msec"), (1.0, "sec")],
-    precision=3,
+    seconds: int,
+    units: List[Tuple[int, str]] = [
+        (1e-09, "nsec"),
+        (1e-06, "µsec"),
+        (0.001, "msec"),
+        (1.0, "sec"),
+    ],
+    precision: int = 3,
 ):
+    """Format a time in seconds to the nearest seconds unit.
+
+    Taken from Lib/timeit.py:main with some simplifications and Python 3
+    conversions. Underlying functionality is still the same.
+
+    Args:
+        seconds (int): The time, in seconds, to be formatted.
+        units (List[Tuple[int, str]], optional):
+            The scales and units to use when formatting the time. Must be in
+            format [(scale: float, unit: str)], e.g.
+            [(0.001, "msec"), (1.0, "sec")].
+            Defaults to the one used in timeit.main, or:
+            [(1e-09, "nsec"), (1e-06, "µsec"), (0.001, "msec"), (1.0, "sec")]
+        precision (int, optional):
+            The number of decimal places to use when formatting the output.
+            Defaults to 3.
+
+    Returns:
+        str:
+            The formatted output string consisting of the scaled output and
+            the seconds unit used, separated by a space. Similar to
+            "0.251 msec" or "1.037 sec."
+    """
+    # Main code: so short, right? :>
     for scale, unit in units:
         if seconds >= scale:
             break
