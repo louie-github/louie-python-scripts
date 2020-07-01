@@ -40,12 +40,17 @@ def timeit(
     `python -m timeit [args...]`, where the number of loops is automatically
     calculated and the output is formatted to the nearest unit.
 
+    A majority of code is grabbed straight from Lib/timeit.py.
+
     Example:
         $ python -m timeit -s "x = []" "x.append(1)"
         5000000 loops, best of 5: 49.1 nsec per loop
 
         $ python
-        >>> :package:.timeit(setup="x = []", stmt="x.append(1))
+        >>> :package:.timeit(setup="x = []", stmt="x.append(1)")
+        5000000 loops, best of 5: 50.2 nsec per loop
+        [0.2599583000000001, 0.2707282, 0.26281960000000004, 0.2509495999999998, 0.2524842999999999]
+        >>> # Warning: This package might have some overhead while timing!
 
     Args:
         number (int, optional):
