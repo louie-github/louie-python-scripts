@@ -77,7 +77,7 @@ def timeit(
     """
     # Create format_time function, removing arguments if None
     format_time_kwargs = (("units", units), ("precision", precision))
-    format_time_kwargs = {k: v for k, v in format_time_kwargs if k is not None}
+    format_time_kwargs = {k: v for k, v in format_time_kwargs if v is not None}
     format_time = partial(_format_time, **format_time_kwargs)
     # Suppress printing if specified
     if print_output:
