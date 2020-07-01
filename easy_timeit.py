@@ -103,7 +103,7 @@ def timeit(
             is used. See _format_time for more details.
         print_output (bool, optional):
             Whether to print the output of the timings in a similar format to
-            the using `python -m timeit`. Defaults to True.
+            using `python -m timeit`. Defaults to True.
 
         All other arguments are passed along to timeit.Timer.
 
