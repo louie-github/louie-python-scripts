@@ -9,7 +9,7 @@ import warnings
 
 from functools import partial
 from typing import List, Tuple
-from timeit import default_repeat, default_timer, Timer
+from timeit import default_repeat, Timer
 
 
 # Source: Lib/timeit.py
@@ -55,15 +55,12 @@ def _format_time(
 
 # Default settings from Lib/timeit.py
 def timeit(
-    stmt="pass",
-    setup="pass",
-    timer=default_timer,
     number=None,
     repeat=default_repeat,
-    globals=None,
     units=None,
     precision=None,
     print_output=True,
+    **timer_kwargs,
 ):
     """Implements timeit.timeit with extra features similar to timeit CLI.
 
@@ -104,8 +101,9 @@ def timeit(
         print_output (bool, optional):
             Whether to print the output of the timings in a similar format to
             using `python -m timeit`. Defaults to True.
-
-        All other arguments are passed along to timeit.Timer.
+        **timer_kwargs:
+            All other arguments are passed along to timeit.Timer. See
+            timeit.timer for more information.
 
     Returns:
         List[Int]: Raw timings per repetition, not per loop.
@@ -124,7 +122,7 @@ def timeit(
         printfunc = lambda *a, **k: None  # noqa: E731
 
     # Set up Timer instances
-    timer = Timer(stmt=stmt, setup=setup, timer=timer, globals=globals)
+    timer = Timer(**timer_kwargs)
 
     # Include the current directory, so that local imports work (sys.path
     # contains the directory of this script, rather than the current
@@ -133,12 +131,16 @@ def timeit(
 
     # Main code, some is from Lib/timeit.py
     # Get number of loops from timer.autorange, where loops is the number of
-    # loops so that the cumulative time taken reaches 0.2 seconds.
-    try:
-        loops, _ = timer.autorange()
-    except Exception:
-        timer.print_exc()
-        return False
+    # loops so that the cumulative time taken reaches 0.2 seconds, if the
+    # number of loops was not specified as an argument.
+    if number is None:
+        try:
+            loops, _ = timer.autorange()
+        except Exception:
+            timer.print_exc()
+            return False
+    else:
+        loops = number
 
     # Main timing code
     try:
