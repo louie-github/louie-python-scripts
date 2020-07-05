@@ -16,10 +16,10 @@ from timeit import default_repeat, Timer
 def _format_time(
     seconds: int,
     units: List[Tuple[int, str]] = [
-        (1e-09, "nsec"),
-        (1e-06, "µsec"),
-        (0.001, "msec"),
         (1.0, "sec"),
+        (0.001, "msec"),
+        (1e-06, "µsec"),
+        (1e-09, "nsec"),
     ],
     precision: int = 3,
 ):
@@ -32,10 +32,11 @@ def _format_time(
         seconds (int): The time, in seconds, to be formatted.
         units (List[Tuple[int, str]], optional):
             The scales and units to use when formatting the time. Must be in
-            format [(scale: float, unit: str)], e.g.
-            [(0.001, "msec"), (1.0, "sec")].
+            format [(scale: float, unit: str)] and sorted beginning from the
+            largest time unit to the smallest time unit, e.g.
+            [(1.0, "sec"), (0.001, "msec")].
             Defaults to the one used in timeit.main, or:
-            [(1e-09, "nsec"), (1e-06, "µsec"), (0.001, "msec"), (1.0, "sec")]
+            [(1.0, "sec"), (0.001, "msec"), (1e-06, "µsec"), (1e-09, "nsec")],
         precision (int, optional):
             The number of decimal places to use when formatting the output.
             Defaults to 3.
