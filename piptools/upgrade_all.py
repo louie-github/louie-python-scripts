@@ -36,7 +36,9 @@ import string
 import subprocess
 import sys
 
-from typing import Dict, Any
+from itertools import chain
+from functools import partial
+from typing import Any, Dict, Iterable
 
 from ..docopt import docopt
 
@@ -105,9 +107,9 @@ def get_packages(
 
 
 def generate_upgrade_command(
-    packages=None,
-    upgrade_command=PIP_UPGRADE_COMMAND,
-    join_output=False,
+    packages: Iterable = None,
+    upgrade_command: Iterable = PIP_UPGRADE_COMMAND,
+    join_output: bool = False,
     *args,
     **kwargs,
 ):
@@ -115,11 +117,12 @@ def generate_upgrade_command(
     packages = packages if packages is not None else get_packages(*args, **kwargs)
     packages = list(packages)
     vprint(f"Found packages: {packages}")
-    output = list(upgrade_command) + packages
+    # Chain together if joining output, otherwise convert to list
+    output = chain(upgrade_command, packages)
     if join_output:
         return shlex.join(output)
     else:
-        return output
+        return list(output)
 
 
 # ----- INTERACTIVE CODE -----
