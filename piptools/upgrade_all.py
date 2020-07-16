@@ -75,7 +75,7 @@ def main(args=None):
         parser.add_argument(
             "--prefix",
             help=(
-                "If specified, the prefix to use before all pip <command> strings."
+                "If specified, the prefix to use before all pip <command> strings. "
                 "Overrides --use_py if specified. Example: --prefix 'python -m'"
             ),
             default=None,
