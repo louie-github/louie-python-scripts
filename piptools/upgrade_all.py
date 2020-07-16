@@ -49,7 +49,7 @@ def generate_upgrade_command(
 ):
     # Get packages if not specified
     packages = packages if packages is not None else get_packages(*args, **kwargs)
-    output = upgrade_command + packages
+    output = list(upgrade_command) + list(packages)
     if join_output:
         return shlex.join(output)
     else:
