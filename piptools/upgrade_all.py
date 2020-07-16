@@ -8,6 +8,16 @@ import sys
 
 __all__ = ["get_packages", "generate_upgrade_command"]
 
+# Support for Python <3.8
+try:
+    shlex.join(["ignore", "this", "command"])
+except AttributeError:
+
+    def _shlex_join(split_command):
+        """Return a shell-escaped string from *split_command*."""
+        return " ".join(quote(arg) for arg in split_command)
+
+    shlex.join = _shlex_join
 
 PY_LAUNCHER_COMMAND = ["py", "-3.8", "-m"]
 PIP_LIST_COMMAND = ["pip", "list"]
@@ -31,13 +41,19 @@ def get_packages(list_command=PIP_LIST_COMMAND, regex=PIP_LIST_REGEX):
 
 
 def generate_upgrade_command(
-    packages=None, upgrade_command=PIP_UPGRADE_COMMAND, *args, **kwargs
+    packages=None,
+    upgrade_command=PIP_UPGRADE_COMMAND,
+    join_output=False,
+    *args,
+    **kwargs,
 ):
+    # Get packages if not specified
     packages = packages if packages is not None else get_packages(*args, **kwargs)
-    # Quote every package for safety, if needed
-    packages_str = " ".join([shlex.quote(package) for package in packages])
-    prefix = shlex.join(upgrade_command)
-    return f"{prefix} {packages_str}"
+    output = upgrade_command + packages
+    if join_output:
+        return shlex.join(output)
+    else:
+        return output
 
 
 # ----- INTERACTIVE CODE -----
@@ -51,9 +67,15 @@ def main(args=None):
             description="Generate a command to update all installed pip packages"
         )
         parser.add_argument(
+            "--run",
+            help="Run the command rather than print it. DANGEROUS.",
+            action="store_true",
+            dest="run",
+        )
+        parser.add_argument(
             "--prefix",
             help=(
-                "If specified, the command to prefix before all pip <command> strings.\n"
+                "If specified, the prefix to use before all pip <command> strings."
                 "Overrides --use_py if specified. Example: --prefix 'python -m'"
             ),
             default=None,
@@ -87,7 +109,17 @@ def main(args=None):
         pip_upgrade_command = prefix + pip_upgrade_command
     # Main code
     packages = get_packages(list_command=pip_list_command)
-    print(generate_upgrade_command(packages, upgrade_command=pip_upgrade_command))
+    # Run if needed
+    if args.run:
+        command = generate_upgrade_command(
+            packages, upgrade_command=pip_upgrade_command, join_output=False
+        )
+        subprocess.run(command)
+    else:
+        command = generate_upgrade_command(
+            packages, upgrade_command=pip_upgrade_command, join_output=True
+        )
+        print(command)
 
 
 if __name__ == "__main__":
