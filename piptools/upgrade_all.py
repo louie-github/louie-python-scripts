@@ -15,7 +15,7 @@ except AttributeError:
 
     def _shlex_join(split_command):
         """Return a shell-escaped string from *split_command*."""
-        return " ".join(quote(arg) for arg in split_command)
+        return " ".join(shlex.quote(arg) for arg in split_command)
 
     shlex.join = _shlex_join
 
