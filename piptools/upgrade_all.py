@@ -139,12 +139,15 @@ def main(args: Dict[str, Any] = None):
         def vprint(text, *args, **kwargs):
             print(f"[DEBUG] {text}")
 
+    # Print processed arguments
+    vprint(args)
+
     # Define base commands
     pip_list_command = PIP_LIST_COMMAND
     pip_upgrade_command = PIP_UPGRADE_COMMAND
 
     # ---> ARGUMENT PARSING
-        # Check if we should use py launcher (only on Windows)
+    # Check if we should use py launcher (only on Windows)
     use_py_launcher = sys.platform.startswith("win32")
     # Get python-version
     python_version = args["--python-version"].strip()
