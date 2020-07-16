@@ -37,7 +37,7 @@ import string
 import subprocess
 import sys
 
-from itertools import chain
+from collections import deque
 from typing import Any, Dict, Iterable
 
 from ..docopt import docopt
@@ -144,8 +144,8 @@ def main(args: Dict[str, Any] = None):
     vprint(args)
 
     # Define base commands
-    pip_list_command = PIP_LIST_COMMAND
-    pip_upgrade_command = PIP_UPGRADE_COMMAND
+    pip_list_command = deque(PIP_LIST_COMMAND)
+    pip_upgrade_command = deque(PIP_UPGRADE_COMMAND)
 
     # ---> ARGUMENT PARSING
     # Check if we should use py launcher (only on Windows)
@@ -165,8 +165,8 @@ def main(args: Dict[str, Any] = None):
         else:
             prefix = [f"python{python_version}", "-m"]
     # Add prefix to all commands
-    pip_list_command = prefix + pip_list_command
-    pip_upgrade_command = prefix + pip_upgrade_command
+    pip_list_command.extendleft(reversed(prefix))
+    pip_upgrade_command.extendleft(reversed(prefix))
 
     # Add --outdated flag to pip_list_command if necessary
     if args["--outdated"]:
@@ -186,7 +186,7 @@ def main(args: Dict[str, Any] = None):
             vprint(
                 "'pip list' returned an empty output and the --outdated flag was not specified."
             )
-            vprint("Exiting normally...")
+            vprint("Exiting normally.")
         raise SystemExit
     # Run if needed
     if args["--run"]:
