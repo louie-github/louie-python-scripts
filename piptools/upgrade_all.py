@@ -124,7 +124,7 @@ def main(args: Dict[str, Any] = None):
     pip_list_command = PIP_LIST_COMMAND
     pip_upgrade_command = PIP_UPGRADE_COMMAND
     # Remove use_py argument if not running on Windows
-    if sys.platform != "win32":
+    if not sys.platform.startswith("win32"):
         args["--use-py"] = False
     python_version = args["--python-version"].strip()
     # Append prefixes / py launcher if necessary
@@ -135,7 +135,7 @@ def main(args: Dict[str, Any] = None):
         prefix[prefix.index("<python-version>")] = f"-{python_version}"
     else:
         # Use 'python' on Windows, and 'python3.6' or the like on Unix-based systems
-        if sys.platform == "win32":
+        if sys.platform.startswith("win32"):
             prefix = ["python", "-m"]
         else:
             prefix = [f"python{python_version}", "-m"]
