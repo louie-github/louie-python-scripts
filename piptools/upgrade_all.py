@@ -17,7 +17,7 @@ PIP_LIST_REGEX = re.compile(r"([\S]*) *(.*)")
 
 def get_packages(list_command=PIP_LIST_COMMAND, regex=PIP_LIST_REGEX):
     sys_encoding = sys.stdout.encoding
-    output = subprocess.check_output(cmd)
+    output = subprocess.check_output(list_command)
     # Parse output into a list of lines and decode into str; strip
     lines = [line.decode(sys_encoding).strip() for line in output.splitlines()]
     # Check if output has the expected prefix lines
@@ -36,7 +36,7 @@ def generate_upgrade_command(
     packages = packages if packages is not None else get_packages(*args, **kwargs)
     # Quote every package for safety, if needed
     packages_str = " ".join([shlex.quote(package) for package in packages])
-    prefix = shlex.join(prefix)
+    prefix = shlex.join(upgrade_command)
     return f"{prefix} {packages_str}"
 
 
