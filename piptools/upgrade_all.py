@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-__version__ = "0.1.0" # First working release
+__version__ = "0.1.0"  # First working release
 """
 Usage:
     python -m louie.piptools.upgrade_all [--quiet | --verbose] [options]
@@ -22,8 +22,8 @@ Script options:
 
 Python launcher options:
     --use-py                     Use the py launcher to run Python. (Disabled on non-Windows systems)
-    --prefix <cmd>               The prefix to add before each 'pip' command. Overrides '--use_py'
-                                 if specified. Defaults to basing it off of '--python-version'.
+    --prefix <command>           The prefix to add before each 'pip' command. Overrides '--use_py'
+                                 if specified. Default is to base it off of '--python-version'.
     --python-version <version>   The version of Python to use when calling 'pip'. [default: 3]
 
 """
