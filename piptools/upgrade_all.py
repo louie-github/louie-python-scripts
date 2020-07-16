@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 Usage:
-    python -m louie.piptools.upgrade_all [--quiet | --verbose] [options]
-    python -m louie.piptools.upgrade_all --help
-    python -m louie.piptools.upgrade_all --version
+    louie.piptools.upgrade_all [--quiet | --verbose] [options]
+    louie.piptools.upgrade_all --help
+    louie.piptools.upgrade_all --version
 
 Options:
     --help       Print this help message and exit.
@@ -98,7 +98,7 @@ def get_packages(
                 f"Expected a valid 'pip list' output, instead got: {checked_lines}"
             )
     else:
-        vprint(f"Skipped 'pip list' output checks.")
+        vprint("Skipped 'pip list' output checks.")
     # Skip first two lines
     for line in lines[2:]:
         match = regex.match(line)
