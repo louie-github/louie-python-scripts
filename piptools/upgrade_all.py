@@ -74,7 +74,7 @@ def _check_pip_list_prefix(lines):
     return all(checks), prefix_lines
 
 
-PY_LAUNCHER_COMMAND = ["py", "<python-version>" "-m"]
+PY_LAUNCHER_COMMAND = ["py", "<python-version>", "-m"]
 PYTHON_COMMAND = ["python"]
 PIP_LIST_COMMAND = ["pip", "list"]
 PIP_UPGRADE_COMMAND = ["pip", "install", "--upgrade", "--no-cache-dir"]
@@ -171,7 +171,7 @@ def main(args: Dict[str, Any] = None):
     # Main code
     packages = get_packages(list_command=pip_list_command)
     # Run if needed
-    if args.run:
+    if args["--run"]:
         command = generate_upgrade_command(
             packages, upgrade_command=pip_upgrade_command, join_output=False
         )
