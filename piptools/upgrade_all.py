@@ -37,7 +37,7 @@ def _check_pip_list_prefix(lines):
     return all(checks), prefix_lines
 
 
-PY_LAUNCHER_COMMAND = ["py", "-3.8", "-m"]
+PY_LAUNCHER_COMMAND = ["py", "-3", "-m"]
 PIP_LIST_COMMAND = ["pip", "list"]
 PIP_UPGRADE_COMMAND = ["pip", "install", "--upgrade", "--no-cache-dir"]
 PIP_LIST_REGEX = re.compile(r"([\S]*) *(.*)")
