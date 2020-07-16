@@ -37,7 +37,6 @@ import subprocess
 import sys
 
 from itertools import chain
-from functools import partial
 from typing import Any, Dict, Iterable
 
 from ..docopt import docopt
