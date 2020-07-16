@@ -14,7 +14,8 @@ Options:
 Output options:
     -v, --verbose    Print verbose output (useful for debugging.)
     -q, --quiet      Suppress the output of subprocess calls, i.e. quiet mode.
-                     Note: This is currently unused; '--run' will always output.
+                     Note: This is currently unused; either the output command string
+                     or '--run' will always output to stdout.
 
 Script options:
     -r, --run        Run the resulting command instead of printing it. (DANGEROUS)
@@ -54,8 +55,12 @@ except AttributeError:
         return " ".join(shlex.quote(arg) for arg in split_command)
 
     shlex.join = _shlex_join
+
 # By default, verbose printing is off.
 vprint = lambda *args, **kwargs: None  # noqa E731
+
+# Regular printing is on.
+rprint = print
 
 
 def _remove_whitespace(text, whitespace=string.whitespace):
@@ -128,17 +133,22 @@ def generate_upgrade_command(
 
 # ----- INTERACTIVE CODE ----
 def main(args: Dict[str, Any] = None):
-    global vprint
+    global rprint, vprint
     # Use duplicate imports, just to be safe :>
     import sys  # noqa
 
     if not args:
         args = docopt(__doc__, version=f"louie.piptools.upgrade_all: {__version__}")
+
     # Enable verbose printing if necessary
     if args["--verbose"]:
 
         def vprint(text, *args, **kwargs):
             print(f"[DEBUG] {text}")
+
+    # Disable all printing if necessary
+    elif args["--quiet"]:
+        rprint = vprint = lambda *args, **kwargs: None
 
     # Print processed arguments
     vprint(args)
@@ -181,7 +191,7 @@ def main(args: Dict[str, Any] = None):
     packages = list(packages)
     if not packages:
         if args["--outdated"]:
-            print("All packages are up to date. Exiting normally.")
+            rprint("All packages are up to date. Exiting normally.")
         else:
             vprint(
                 "'pip list' returned an empty output and the --outdated flag was not specified."
