@@ -45,6 +45,13 @@ from ..docopt import docopt
 
 __all__ = ["get_packages", "generate_upgrade_command"]
 
+PY_LAUNCHER_COMMAND = ["py", "<python-version>", "-m"]
+PYTHON_COMMAND = ["python"]
+PIP_LIST_COMMAND = ["pip", "list"]
+PIP_UPGRADE_COMMAND = ["pip", "install", "--upgrade", "--no-cache-dir"]
+PIP_LIST_REGEX = re.compile(r"([\S]*) *(.*)")
+
+
 # Support for Python <3.8
 try:
     shlex.join(["ignore", "this", "command"])
@@ -77,13 +84,6 @@ def _check_pip_list_prefix(lines):
         set(_remove_whitespace(prefix_lines[1])) == {"-"},
     ]
     return all(checks), prefix_lines
-
-
-PY_LAUNCHER_COMMAND = ["py", "<python-version>", "-m"]
-PYTHON_COMMAND = ["python"]
-PIP_LIST_COMMAND = ["pip", "list"]
-PIP_UPGRADE_COMMAND = ["pip", "install", "--upgrade", "--no-cache-dir"]
-PIP_LIST_REGEX = re.compile(r"([\S]*) *(.*)")
 
 
 def get_packages(
