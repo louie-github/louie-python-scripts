@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
+"""Generate a command to upgrade all installed pip packages. Run with python -m.
+
 Usage:
     louie.piptools.upgrade_all [--quiet | --verbose] [options]
     louie.piptools.upgrade_all --help
