@@ -135,7 +135,10 @@ def main(args: Dict[str, Any] = None):
         args = docopt(__doc__, version=f"louie.piptools.upgrade_all: {__version__}")
     # Enable verbose printing if necessary
     if args["--verbose"]:
-        vprint = print
+
+        def vprint(text, *args, **kwargs):
+            print(f"[DEBUG] {text}")
+
     # Define base commands
     pip_list_command = PIP_LIST_COMMAND
     pip_upgrade_command = PIP_UPGRADE_COMMAND
