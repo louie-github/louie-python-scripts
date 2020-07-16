@@ -3,6 +3,7 @@
 
 import re
 import shlex
+import string
 import subprocess
 import sys
 
@@ -19,6 +20,23 @@ except AttributeError:
 
     shlex.join = _shlex_join
 
+
+def _remove_whitespace(text, whitespace=string.whitespace):
+    # Could also be text.translate(str.maketrans('', '', whitespace)
+    return "".join(c for c in text if c not in whitespace)
+
+
+def _check_pip_list_prefix(lines):
+    prefix_lines = lines[:2]
+    checks = [
+        # 1. Check that the first line contains the words 'Package' and 'Version'
+        _remove_whitespace(prefix_lines[0]) == "PackageVersion",
+        # 2. Check that the second line contains only dashes
+        set(_remove_whitespace(prefix_lines[1])) == {"-"},
+    ]
+    return all(checks), prefix_lines
+
+
 PY_LAUNCHER_COMMAND = ["py", "-3.8", "-m"]
 PIP_LIST_COMMAND = ["pip", "list"]
 PIP_UPGRADE_COMMAND = ["pip", "install", "--upgrade", "--no-cache-dir"]
@@ -31,8 +49,11 @@ def get_packages(list_command=PIP_LIST_COMMAND, regex=PIP_LIST_REGEX):
     # Parse output into a list of lines and decode into str; strip
     lines = [line.decode(sys_encoding).strip() for line in output.splitlines()]
     # Check if output has the expected prefix lines
-    if not lines[:2] == ["Package           Version", "----------------- ---------"]:
-        return
+    passed, checked_lines = _check_pip_list_prefix(lines)
+    if not passed:
+        raise ValueError(
+            f"Expected a valid 'pip list' output, instead got: {checked_lines}"
+        )
     # Skip first two lines
     for line in lines[2:]:
         match = regex.match(line)
