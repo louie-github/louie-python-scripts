@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-__version__ = "0.1.0"  # First working release
 """
 Usage:
     python -m louie.piptools.upgrade_all [--quiet | --verbose] [options]
@@ -29,6 +28,8 @@ Python launcher options:
     --python-version <version>   The version of Python to use when calling 'pip'. [default: 3]
 
 """
+
+__version__ = "0.1.0"  # First working release
 
 import re
 import shlex
@@ -124,7 +125,7 @@ def generate_upgrade_command(
         return list(output)
 
 
-# ----- INTERACTIVE CODE -----
+# ----- INTERACTIVE CODE ----
 def main(args: Dict[str, Any] = None):
     global vprint
     # Use duplicate imports, just to be safe :>
