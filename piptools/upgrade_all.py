@@ -87,6 +87,8 @@ def get_packages(
     sys_encoding = sys.stdout.encoding
     vprint(f"Running 'pip list' command: {list_command}")
     output = subprocess.check_output(list_command)
+    if not output:
+        return
     # Parse output into a list of lines and decode into str; strip
     lines = [line.decode(sys_encoding).strip() for line in output.splitlines()]
     # Check if output has the expected prefix lines
@@ -117,12 +119,11 @@ def generate_upgrade_command(
     packages = packages if packages is not None else get_packages(*args, **kwargs)
     packages = list(packages)
     vprint(f"Found packages: {packages}")
-    # Chain together if joining output, otherwise convert to list
-    output = chain(upgrade_command, packages)
+    output = list(upgrade_command) + packages
     if join_output:
         return shlex.join(output)
     else:
-        return list(output)
+        return output
 
 
 # ----- INTERACTIVE CODE ----
@@ -168,8 +169,8 @@ def main(args: Dict[str, Any] = None):
     pip_upgrade_command = prefix + pip_upgrade_command
 
     # Add --outdated flag to pip_list_command if necessary
-    if args['--outdated']:
-        pip_list_command.append('--outdated')
+    if args["--outdated"]:
+        pip_list_command.append("--outdated")
 
     # Debug print the commands
     vprint(f"pip_list_command: {pip_list_command}")
@@ -177,6 +178,16 @@ def main(args: Dict[str, Any] = None):
 
     # Main code
     packages = get_packages(list_command=pip_list_command)
+    packages = list(packages)
+    if not packages:
+        if args["--outdated"]:
+            print("All packages are up to date. Exiting normally.")
+        else:
+            vprint(
+                "'pip list' returned an empty output and the --outdated flag was not specified."
+            )
+            vprint("Exiting normally...")
+        raise SystemExit
     # Run if needed
     if args["--run"]:
         command = generate_upgrade_command(
