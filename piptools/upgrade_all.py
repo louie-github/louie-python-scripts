@@ -167,6 +167,10 @@ def main(args: Dict[str, Any] = None):
     pip_list_command = prefix + pip_list_command
     pip_upgrade_command = prefix + pip_upgrade_command
 
+    # Add --outdated flag to pip_list_command if necessary
+    if args['--outdated']:
+        pip_list_command.append('--outdated')
+
     # Debug print the commands
     vprint(f"pip_list_command: {pip_list_command}")
     vprint(f"pip_upgrade_command: {pip_upgrade_command}")
