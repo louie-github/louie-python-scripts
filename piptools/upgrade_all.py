@@ -1,5 +1,32 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+__version__ = "0.1.0" # First working release
+"""
+Usage:
+    python -m louie.piptools.upgrade_all [--quiet | --verbose] [options]
+    python -m louie.piptools.upgrade_all --help
+    python -m louie.piptools.upgrade_all --version
+
+Options:
+    --help       Print this help message and exit.
+    --version    Print the current version of the script.
+
+Output options:
+    -v, --verbose    Print verbose output (useful for debugging.)
+    -q, --quiet      Suppress the output of subprocess calls, i.e. quiet mode.
+
+Script options:
+    -r, --run        Run the resulting command instead of printing it. (DANGEROUS)
+    --outdated       List only the outdated packages by adding '--outdated' to 'pip list'.
+    --skip-checks    Skip checking the output of the 'pip list' command and parse it directly.
+
+Python launcher options:
+    --use-py                     Use the py launcher to run Python. (Disabled on non-Windows systems)
+    --prefix <cmd>               The prefix to add before each 'pip' command. Overrides '--use_py'
+                                 if specified. Defaults to basing it off of '--python-version'.
+    --python-version <version>   The version of Python to use when calling 'pip'. [default: 3]
+
+"""
 
 import re
 import shlex
