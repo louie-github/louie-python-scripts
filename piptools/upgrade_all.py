@@ -22,9 +22,8 @@ Script options:
     --skip-checks    Skip checking the output of the 'pip list' command and parse it directly.
 
 Python launcher options:
-    --use-py                     Use the py launcher to run Python. (Disabled on non-Windows systems)
-    --prefix <command>           The prefix to add before each 'pip' command. Overrides '--use_py'
-                                 if specified. Default is to base it off of '--python-version'.
+    --prefix <command>           The prefix to add before each 'pip' command. Overrides the py launcher
+                                 when using Windows. Default is to base it off of '--python-version'.
                                  (Example: 'python3.8 -m')
     --python-version <version>   The version of Python to use when calling 'pip'. [default: 3]
 
@@ -145,14 +144,14 @@ def main(args: Dict[str, Any] = None):
     pip_upgrade_command = PIP_UPGRADE_COMMAND
 
     # ---> ARGUMENT PARSING
-    # Remove use_py argument if not running on Windows
-    if not sys.platform.startswith("win32"):
-        args["--use-py"] = False
+        # Check if we should use py launcher (only on Windows)
+    use_py_launcher = sys.platform.startswith("win32")
+    # Get python-version
     python_version = args["--python-version"].strip()
     # Append prefixes / py launcher if necessary
     if args["--prefix"]:
         prefix = shlex.split(args.prefix)
-    elif args["--use-py"]:
+    elif use_py_launcher:
         prefix = PY_LAUNCHER_COMMAND.copy()
         prefix[prefix.index("<python-version>")] = f"-{python_version}"
     else:
