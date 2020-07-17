@@ -39,7 +39,7 @@ import subprocess
 import sys
 
 from collections import deque
-from typing import Any, Dict, Iterable
+from typing import Iterable, List
 
 from .docopt import docopt
 
@@ -132,13 +132,17 @@ def generate_upgrade_command(
 
 
 # ----- INTERACTIVE CODE ----
-def main(args: Dict[str, Any] = None):
+def main(args: List[str] = None):
     global rprint, vprint
     # Use duplicate imports, just to be safe :>
     import sys  # noqa
 
     if not args:
         args = docopt(__doc__, version=f"louie.piptools.upgrade_all: {__version__}")
+    else:
+        args = docopt(
+            __doc__, argv=args, version=f"louie.piptools.upgrade_all: {__version__}"
+        )
 
     # Enable verbose printing if necessary
     if args["--verbose"]:
