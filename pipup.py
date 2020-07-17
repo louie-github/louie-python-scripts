@@ -3,7 +3,7 @@
 """Generate a command to upgrade all installed pip packages. Run with python -m.
 
 Usage:
-    louie.piptools.upgrade_all [--quiet | --verbose] [options]
+    louie.piptools.upgrade_all [options]
     louie.piptools.upgrade_all --help
     louie.piptools.upgrade_all --version
 
