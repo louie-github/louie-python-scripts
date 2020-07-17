@@ -9,8 +9,12 @@ import sys
 from typing import List
 
 
+# Add directory to path so we can import the scripts
+sys.path.append(os.path.dirname(__file__))
+
+
 def run_module(module_name: str, args: List[str]):
-    module = importlib.import_module(f".{module_name}", "WHY")
+    module = importlib.import_module(f"{module_name}")
     module.main(args)
 
 
@@ -34,8 +38,6 @@ else:
 # Recreate docopt 'options_first' by adding '--' before the first positional
 if add_dash:
     argv = [*(argv[:first_pos]), "--", *(argv[first_pos:])]
-print(argv)
 # Use edited sys.argv
 args = parser.parse_args(argv)
-print(args)
 run_module(args.module, args.args)
