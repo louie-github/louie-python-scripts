@@ -10,9 +10,9 @@ URL_REGEX = re.compile("url=([^&]*)")
 
 
 def get_url(google_url: str, regex=URL_REGEX):
-    url = regex.search(google_url)[1]
+    url = regex.search(google_url)
     if url is not None:
-        return unquote(url)
+        return unquote(url[1])
 
 
 def main(args: List[str] = None):
