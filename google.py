@@ -21,6 +21,9 @@ def main(args: List[str] = None):
     if args is None:
         args = sys.argv[1:]
 
+    # Remove options from args, we currently do not have any
+    args = [x for x in args if not x.startswith("-")]
+
     if len(args) < 1:
         urls = [input("Input URL here: ")]
     else:
