@@ -29,8 +29,13 @@ def main(args: List[str] = None):
     else:
         urls = args
 
-    for url in urls:
-        print(get_url(url))
+    for i, url in enumerate(urls):
+        i += 1  # Start counting at 1
+        output = get_url(url)
+        if output is not None:
+            print(f"[{i}] {output}")
+        else:
+            print(f"[{i}] No URL found.")
 
 
 if __name__ == "__main__":
