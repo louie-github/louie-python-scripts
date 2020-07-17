@@ -41,7 +41,7 @@ import sys
 from collections import deque
 from typing import Any, Dict, Iterable
 
-from ..docopt import docopt
+from .docopt import docopt
 
 __all__ = ["get_packages", "generate_upgrade_command"]
 
