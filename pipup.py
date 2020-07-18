@@ -135,9 +135,6 @@ def generate_upgrade_command(
 
 # ----- INTERACTIVE CODE ----
 def main(args: List[str] = None):
-    # Use duplicate imports, just to be safe :>
-    import sys  # noqa
-
     if args is None:
         args = docopt(__doc__, version=f"pipup: {__version__}")
     else:
