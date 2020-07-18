@@ -3,9 +3,9 @@
 """Generate a command to upgrade all installed pip packages. Run with python -m.
 
 Usage:
-    louie.piptools.upgrade_all [options]
-    louie.piptools.upgrade_all --help
-    louie.piptools.upgrade_all --version
+    pipup
+    pipup [--quiet | --verbose] [options]
+    pipup [--help | --version]
 
 Options:
     --help       Print this help message and exit.
@@ -137,12 +137,10 @@ def main(args: List[str] = None):
     # Use duplicate imports, just to be safe :>
     import sys  # noqa
 
-    if not args:
-        args = docopt(__doc__, version=f"louie.piptools.upgrade_all: {__version__}")
+    if args is None:
+        args = docopt(__doc__, version=f"pipup: {__version__}")
     else:
-        args = docopt(
-            __doc__, argv=args, version=f"louie.piptools.upgrade_all: {__version__}"
-        )
+        args = docopt(__doc__, argv=args, version=f"pipup: {__version__}")
 
     # Enable verbose printing if necessary
     if args["--verbose"]:
