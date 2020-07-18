@@ -5,10 +5,13 @@ import argparse
 import re
 import sys
 
+from functools import partial
 from typing import List
 from urllib.parse import unquote
 
+
 import pyperclip
+
 
 URL_REGEX = re.compile("url=([^&]*)")
 
@@ -72,9 +75,12 @@ def configure(args: argparse.Namespace):
 
 
 def main(args: List[str] = None):
+    _errprint = partial(print, file=sys.stderr)
+
     parser = create_parser()
     parsed_args = parser.parse_args(args)
     urls, printer = configure(parsed_args)
+
     # Use stdin if no URLs were given, like a good program :>
     if not urls:
         urls = (url.strip() for url in sys.stdin.read().splitlines())
@@ -85,7 +91,7 @@ def main(args: List[str] = None):
         if output:
             printer(output)
         else:
-            print(f"No URL found for {url}", file=sys.stderr)
+            _errprint(f"No URL found for {url}", file=sys.stderr)
 
 
 if __name__ == "__main__":
