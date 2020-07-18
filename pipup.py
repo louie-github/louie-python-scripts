@@ -1,33 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Generate a command to upgrade all installed pip packages.
+"""Usage: pipup [--quiet | --verbose] [options]
 
-Usage:
-    pipup [--quiet | --verbose] [options]
-    pipup [--help | --version]
+Generate a command to upgrade all installed pip packages.
 
-Options:
-    --help       Print this help message and exit.
-    --version    Print the current version of the script.
-
-Output options:
-    -v, --verbose    Print verbose output (useful for debugging.)
-    -q, --quiet      Suppress the output of subprocess calls, i.e. quiet mode.
-                     Note: This is currently unused; either the output command string
-                     or '--run' will always output to stdout.
+Optional arguments:
+  -h, --help                        show this help message and exit
+  -v, --verbose                     enable verbose output (useful for debugging)
+  -q, --quiet                       suppress output (currently unused; '--run' will always output)
 
 Script options:
-    -r, --run             Run the resulting command instead of printing it. (DANGEROUS)
-    --outdated            List only the outdated packages by adding '--outdated' to 'pip list'.
-    --skip-checks         Skip checking the output of the 'pip list' command and parse it directly.
-    -n, --no-cache-dir    Append '--no-cache-dir' to the pip upgrade command.
+  -r, --run                         run the output command instead of printing it (not recommended)
+  -o, --outdated                    only list the outdated packages
+  --skip-checks                     skip checking the output of the 'pip list' command and parse it directly
+  -n, --no-cache-dir                append '--no-cache-dir' to the 'pip upgrade' command
 
 Python launcher options:
-    -c, --prefix <command>            The prefix to add before each 'pip' command. Overrides the py launcher
-                                      when using Windows. Default is to base it off of '--python-version'.
-                                      (Example: 'python3.8 -m' on Unix and 'py -3.8' on Windows.)
-    -p, --python-version <version>    The version of Python to use when calling 'pip'. [default: 3]
-
+  -c, --prefix [COMMAND]            add the prefix COMMAND before each 'pip' command
+                                    [default: 'py -[version] -m' on Windows, 'python[version] -m' on Unix]
+  -p, --python-version [VERSION]    the version of Python to use [default: 3]
+  --no-py[-launcher]                disable using the 'py' launcher on Windows
 """
 
 import argparse
@@ -130,13 +122,25 @@ def generate_upgrade_command(
         return output
 
 
+def show_help(*args, exit_after=True, **kwargs):
+    print(__doc__)
+    if exit_after:
+        raise SystemExit
+
+
 # Standard argument parsing API
 def create_parser():
     parser = argparse.ArgumentParser(
         prog="pipup",
         usage="pipup [--quiet | --verbose] [options]",
         description="Generate a command to upgrade all installed pip packages.",
+        add_help=False,
     )
+    # Override help command
+    parser.add_argument(
+        "-h", "--help", help="show this help message and exit", action=show_help
+    )
+
     output_options = parser.add_mutually_exclusive_group()
     output_options.add_argument(
         "-v",
@@ -152,6 +156,7 @@ def create_parser():
         action="store_true",
         dest="quiet",
     )
+
     script_options = parser.add_argument_group(title="script options")
     script_options.add_argument(
         "-r",
@@ -180,15 +185,14 @@ def create_parser():
         help="append '--no-cache-dir' to the 'pip upgrade' command",
         dest="no_cache_dir",
     )
+
     python_options = parser.add_argument_group(title="Python launcher options")
     python_options.add_argument(
         "-c",
         "--prefix",
-        help="\n".join(
-            [
-                "prepend COMMAND before each 'pip' command.\n",
-                "(defaults to 'py -[version] -m' on Windows and 'python[version] -m' on Unix.",
-            ]
+        help=(
+            "add the prefix COMMAND before each 'pip' command "
+            "[default: 'py -[version] -m' on Windows, 'python[version] -m' on Unix]"
         ),
         metavar="COMMAND",
         nargs="?",
@@ -211,10 +215,15 @@ def create_parser():
         action="store_false",
         dest="use_py",
     )
+
     return parser
 
 
 def configure(args: argparse.Namespace):
+    # Manually define help command behavior
+    if args.help:
+        print(__doc__)
+        raise SystemExit
     global rprint, vprint
 
     if args.verbose:
