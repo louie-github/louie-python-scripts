@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Generate a command to upgrade all installed pip packages. Run with python -m.
+"""Generate a command to upgrade all installed pip packages.
 
 Usage:
     pipup
@@ -94,7 +94,8 @@ def get_packages(
     output = subprocess.check_output(list_command)
     if not output:
         return
-    # Parse output into a list of lines and decode into str; strip
+    # Parse output into a list of lines and decode into str
+    # (also strip whitespace)
     lines = [line.decode(sys_encoding).strip() for line in output.splitlines()]
     # Check if output has the expected prefix lines
     if not skip_checks:
@@ -133,7 +134,6 @@ def generate_upgrade_command(
 
 # ----- INTERACTIVE CODE ----
 def main(args: List[str] = None):
-    global rprint, vprint
     # Use duplicate imports, just to be safe :>
     import sys  # noqa
 
@@ -143,6 +143,8 @@ def main(args: List[str] = None):
         args = docopt(__doc__, argv=args, version=f"pipup: {__version__}")
 
     # Enable verbose printing if necessary
+    global rprint, vprint
+
     if args["--verbose"]:
 
         def vprint(text, *args, **kwargs):
