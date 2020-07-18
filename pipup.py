@@ -155,8 +155,8 @@ def main(args: List[str] = None):
     elif args["--quiet"]:
         rprint = vprint = lambda *args, **kwargs: None
 
-    # Print processed arguments
-    vprint(args)
+    # Print processed arguments (convert to Python dict for better printing)
+    vprint(f"Parsed arguments: {dict(args)}")
 
     # Define base commands
     pip_list_command = deque(PIP_LIST_COMMAND)
