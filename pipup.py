@@ -135,9 +135,9 @@ def create_parser():
     parser = argparse.ArgumentParser(
         prog="pipup",
         usage="pipup [--quiet | --verbose] [options]",
-        help="Generate a command to upgrade all installed pip packages.",
+        description="Generate a command to upgrade all installed pip packages.",
     )
-    output_options = parser.add_mutually_exclusive_group(title="Output options")
+    output_options = parser.add_mutually_exclusive_group()
     output_options.add_argument(
         "-v",
         "--verbose",
@@ -152,7 +152,7 @@ def create_parser():
         action="store_true",
         dest="quiet",
     )
-    script_options = parser.add_argument_group(title="Script options")
+    script_options = parser.add_argument_group(title="script options")
     script_options.add_argument(
         "-r",
         "--run",
@@ -176,9 +176,9 @@ def create_parser():
     script_options.add_argument(
         "-n",
         "--no-cache-dir",
-        action="store_false",
+        action="store_true",
         help="append '--no-cache-dir' to the 'pip upgrade' command",
-        dest="cache_dir",
+        dest="no_cache_dir",
     )
     python_options = parser.add_argument_group(title="Python launcher options")
     python_options.add_argument(
@@ -191,75 +191,85 @@ def create_parser():
             ]
         ),
         metavar="COMMAND",
-        default=None,
         nargs="?",
+        default=None,
         dest="prefix",
     )
     python_options.add_argument(
         "-p",
         "--python-version",
         help="the version of Python to use [default: 3]",
-        nargs="?",
         metavar="VERSION",
-        default=None,
-        dest="version",
+        nargs="?",
+        default="3",
+        dest="python_version",
     )
+    python_options.add_argument(
+        "--no-py",
+        "--no-py-launcher",
+        help="disable using the 'py' launcher on Windows",
+        action="store_false",
+        dest="use_py",
+    )
+    return parser
 
 
-# ----- INTERACTIVE CODE ----
-def main(args: List[str] = None):
-    if args is None:
-        args = docopt(__doc__, version=f"pipup: {__version__}")
-    else:
-        args = docopt(__doc__, argv=args, version=f"pipup: {__version__}")
-
-    # Enable verbose printing if necessary
+def configure(args: argparse.Namespace):
     global rprint, vprint
 
-    if args["--verbose"]:
+    if args.verbose:
 
         def vprint(text, *args, **kwargs):
             print(f"[DEBUG] {text}")
 
-    # Disable all printing if necessary
-    elif args["--quiet"]:
+    elif args.quiet:
         rprint = vprint = lambda *args, **kwargs: None
 
-    # Print processed arguments (convert to Python dict for better printing)
-    vprint(f"Parsed arguments: {dict(args)}")
+    vprint(f"Parsed arguments: {args}")
 
     # Define base commands
     pip_list_command = deque(PIP_LIST_COMMAND)
     pip_upgrade_command = deque(PIP_UPGRADE_COMMAND)
 
-    # ---> ARGUMENT PARSING
-    # Check if we should use py launcher (only on Windows)
-    use_py_launcher = sys.platform.startswith("win32")
-    # Get python-version
-    python_version = args["--python-version"].strip()
-    # Append prefixes / py launcher if necessary
-    if args["--prefix"]:
+    # Main argument parsing
+    is_windows = sys.platform.startswith("win32")
+    python_version = args.python_version.strip()
+    # Apply prefixes in order of: args.prefix, Windows py launcher, python[version]
+    if args.prefix is not None:
         prefix = shlex.split(args.prefix)
-    elif use_py_launcher:
-        prefix = PY_LAUNCHER_COMMAND.copy()
-        prefix[prefix.index("<python-version>")] = f"-{python_version}"
-    else:
-        # Use 'python' on Windows, and 'python3.6' or the like on Unix-based systems
-        if sys.platform.startswith("win32"):
-            prefix = ["python", "-m"]
+    elif is_windows:
+        if args.use_py:
+            prefix = PY_LAUNCHER_COMMAND.copy()
+            prefix[prefix.index("<python-version>")] = f"-{python_version}"
         else:
-            prefix = [f"python{python_version}", "-m"]
+            prefix = ["python", "-m"]
+    else:
+        prefix = [f"python{python_version}", "-m"]
+
     # Add prefix to all commands
     pip_list_command.extendleft(reversed(prefix))
     pip_upgrade_command.extendleft(reversed(prefix))
 
     # Add extra flags to pip commands if necessary
-    if args["--outdated"]:
+    if args.outdated:
         pip_list_command.append("--outdated")
-    if args["--no-cache-dir"]:
+    if args.no_cache_dir:
         pip_upgrade_command.append("--no-cache-dir")
 
-    # Debug print the commands
+    return pip_list_command, pip_upgrade_command
+
+
+# ----- INTERACTIVE CODE ----
+def main(args: List[str] = None):
+    # Parse arguments
+    parser = create_parser()
+    if args is not None:
+        parsed_args = parser.parse_args(args)
+    else:
+        parsed_args = parser.parse_args()
+
+    # Configure commands based on parsed args
+    pip_list_command, pip_upgrade_command = configure(parsed_args)
     vprint(f"pip_list_command: {pip_list_command}")
     vprint(f"pip_upgrade_command: {pip_upgrade_command}")
 
@@ -267,7 +277,7 @@ def main(args: List[str] = None):
     packages = get_packages(list_command=pip_list_command)
     packages = list(packages)
     if not packages:
-        if args["--outdated"]:
+        if parsed_args.outdated:
             rprint("All packages are up to date. Exiting normally.")
         else:
             vprint(
@@ -275,8 +285,7 @@ def main(args: List[str] = None):
             )
             vprint("Exiting normally.")
         raise SystemExit
-    # Run if needed
-    if args["--run"]:
+    if parsed_args.run:
         command = generate_upgrade_command(
             packages, upgrade_command=pip_upgrade_command, join_output=False
         )
