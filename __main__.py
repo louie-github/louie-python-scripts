@@ -37,7 +37,7 @@ else:
     add_dash = False
 # Recreate docopt 'options_first' by adding '--' before the first positional
 if add_dash:
-    argv = [*(argv[:first_pos]), "--", *(argv[first_pos:])]
+    argv.insert(first_pos, "--")
 # Use edited sys.argv
 args = parser.parse_args(argv)
 run_module(args.module, args.args)
