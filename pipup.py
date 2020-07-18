@@ -5,21 +5,21 @@
 Generate a command to upgrade all installed pip packages.
 
 Optional arguments:
-  -h, --help                        show this help message and exit
-  -v, --verbose                     enable verbose output (useful for debugging)
-  -q, --quiet                       suppress output (currently unused; '--run' will always output)
+  -h, --help                show this help message and exit
+  -v, --verbose             enable verbose output (useful for debugging)
+  -q, --quiet               suppress output (currently unused; '--run' will always output)
 
 Script options:
-  -r, --run                         run the output command instead of printing it (not recommended)
-  -o, --outdated                    only list the outdated packages
-  --skip-checks                     skip checking the output of the 'pip list' command and parse it directly
-  -n, --no-cache-dir                append '--no-cache-dir' to the 'pip upgrade' command
+  -r, --run                 run the output command instead of printing it (not recommended)
+  -o, --outdated            only list the outdated packages
+  --skip-checks             skip checking the output of the 'pip list' command and parse it directly
+  -n, --no-cache-dir        append '--no-cache-dir' to the 'pip upgrade' command
 
 Python launcher options:
-  -c, --prefix [COMMAND]            add the prefix COMMAND before each 'pip' command
-                                    [default: 'py -[version] -m' on Windows, 'python[version] -m' on Unix]
-  -p, --python-version [VERSION]    the version of Python to use [default: 3]
-  --no-py[-launcher]                disable using the 'py' launcher on Windows
+  -c, --prefix [COMMAND]    add the prefix COMMAND before each 'pip' command
+                            [default: 'py -[version] -m' on Windows, 'python[version] -m' on Unix]
+  -p, --python [VERSION]    the version of Python to use [default: 3]
+  --no-py[-launcher]        disable using the 'py' launcher on Windows
 """
 
 import argparse
@@ -201,6 +201,7 @@ def create_parser():
     )
     python_options.add_argument(
         "-p",
+        "--python",
         "--python-version",
         help="the version of Python to use [default: 3]",
         metavar="VERSION",
