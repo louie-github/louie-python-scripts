@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import argparse
 import re
+import sys
 
 from typing import List
 from urllib.parse import unquote
+
+import pyperclip
 
 URL_REGEX = re.compile("url=([^&]*)")
 
@@ -15,27 +19,86 @@ def get_url(google_url: str, regex=URL_REGEX):
         return unquote(url[1])
 
 
+def create_parser():
+    parser = argparse.ArgumentParser(
+        prog="google", description="Extract the direct URL from a Google search."
+    )
+    parser.add_argument(
+        "-c", "--copy", help="read URL from clipboard", action="store_true", dest="copy"
+    )
+    parser.add_argument(
+        "-p",
+        "--paste",
+        help="paste extracted URL to clipboard",
+        action="store_true",
+        dest="paste",
+    )
+    parser.add_argument(
+        "--clipboard",
+        help="enable both --copy and --paste (you can also use -cv)",
+        action="store_true",
+        dest="clipboard",
+    )
+    parser.add_argument(
+        "--clean",
+        "--clean-output",
+        help="only output the extracted URLs separated by newlines",
+        action="store_true",
+        dest="clean_output",
+    )
+    parser.add_argument(
+        "urls",
+        help="the Google search URL(s), default is to read from stdin",
+        metavar="URLs",
+        nargs=argparse.REMAINDER,
+    )
+    return parser
+
+
+def configure(args: argparse.Namespace):
+    clean_output, clipboard, copy, paste, urls, = (
+        args.clean_output,
+        args.clipboard,
+        args.copy,
+        args.paste,
+        args.urls,
+    )
+    clean_printer = print
+    printer = print
+
+    # Use modular checks
+    if clipboard:
+        copy = True
+        paste = True
+
+    if copy:
+        urls.extend([url.strip() for url in pyperclip.paste().splitlines()])
+
+    if paste:
+        printer = pyperclip.copy
+        clean_output = True
+
+    if clean_output:
+        clean_printer = lambda *a, **k: False  # noqa: E731
+
+    return urls, clean_printer, printer
+
+
 def main(args: List[str] = None):
-    import sys
+    parser = create_parser()
+    parsed_args = parser.parse_args(args)
+    urls, clean_printer, printer = configure(parsed_args)
+    # Use stdin if no URLs were given, like a good program :>
+    if not urls:
+        urls = (url.strip() for url in sys.stdin.read().splitlines())
 
-    if args is None:
-        args = sys.argv[1:]
-
-    # Remove options from args, we currently do not have any
-    args = [x for x in args if not x.startswith("-")]
-
-    if len(args) < 1:
-        urls = [input("Input URL here: ")]
-    else:
-        urls = args
-
-    for i, url in enumerate(urls):
-        i += 1  # Start counting at 1
+    # Main loop
+    for url in urls:
         output = get_url(url)
-        if output is not None:
-            print(f"[{i}] {output}")
+        if output:
+            printer(output)
         else:
-            print(f"[{i}] No URL found.")
+            clean_printer(f"No URL found for {url}")
 
 
 if __name__ == "__main__":
