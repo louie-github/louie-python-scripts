@@ -23,10 +23,10 @@ Script options:
     --skip-checks    Skip checking the output of the 'pip list' command and parse it directly.
 
 Python launcher options:
-    --prefix <command>           The prefix to add before each 'pip' command. Overrides the py launcher
-                                 when using Windows. Default is to base it off of '--python-version'.
-                                 (Example: 'python3.8 -m')
-    --python-version <version>   The version of Python to use when calling 'pip'. [default: 3]
+    -c, --prefix <command>            The prefix to add before each 'pip' command. Overrides the py launcher
+                                      when using Windows. Default is to base it off of '--python-version'.
+                                      (Example: 'python3.8 -m' on Unix and 'py -3.8' on Windows.)
+    -p, --python-version <version>    The version of Python to use when calling 'pip'. [default: 3]
 
 """
 
