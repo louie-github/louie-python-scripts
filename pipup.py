@@ -18,9 +18,10 @@ Output options:
                      or '--run' will always output to stdout.
 
 Script options:
-    -r, --run        Run the resulting command instead of printing it. (DANGEROUS)
-    --outdated       List only the outdated packages by adding '--outdated' to 'pip list'.
-    --skip-checks    Skip checking the output of the 'pip list' command and parse it directly.
+    -r, --run             Run the resulting command instead of printing it. (DANGEROUS)
+    --outdated            List only the outdated packages by adding '--outdated' to 'pip list'.
+    --skip-checks         Skip checking the output of the 'pip list' command and parse it directly.
+    -n, --no-cache-dir    Append '--no-cache-dir' to the pip upgrade command.
 
 Python launcher options:
     -c, --prefix <command>            The prefix to add before each 'pip' command. Overrides the py launcher
@@ -48,7 +49,7 @@ __all__ = ["get_packages", "generate_upgrade_command"]
 PY_LAUNCHER_COMMAND = ["py", "<python-version>", "-m"]
 PYTHON_COMMAND = ["python"]
 PIP_LIST_COMMAND = ["pip", "list"]
-PIP_UPGRADE_COMMAND = ["pip", "install", "--upgrade", "--no-cache-dir"]
+PIP_UPGRADE_COMMAND = ["pip", "install", "--upgrade"]
 PIP_LIST_REGEX = re.compile(r"([\S]*) *(.*)")
 
 
@@ -182,9 +183,11 @@ def main(args: List[str] = None):
     pip_list_command.extendleft(reversed(prefix))
     pip_upgrade_command.extendleft(reversed(prefix))
 
-    # Add --outdated flag to pip_list_command if necessary
+    # Add extra flags to pip commands if necessary
     if args["--outdated"]:
         pip_list_command.append("--outdated")
+    if args["--no-cache-dir"]:
+        pip_upgrade_command.append("--no-cache-dir")
 
     # Debug print the commands
     vprint(f"pip_list_command: {pip_list_command}")
