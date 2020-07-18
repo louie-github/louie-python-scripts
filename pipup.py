@@ -3,7 +3,6 @@
 """Generate a command to upgrade all installed pip packages.
 
 Usage:
-    pipup
     pipup [--quiet | --verbose] [options]
     pipup [--help | --version]
 
@@ -31,8 +30,7 @@ Python launcher options:
 
 """
 
-__version__ = "0.1.0"  # First working release
-
+import argparse
 import re
 import shlex
 import string
@@ -42,7 +40,6 @@ import sys
 from collections import deque
 from typing import Iterable, List
 
-from docopt import docopt
 
 __all__ = ["get_packages", "generate_upgrade_command"]
 
@@ -131,6 +128,82 @@ def generate_upgrade_command(
         return shlex.join(output)
     else:
         return output
+
+
+# Standard argument parsing API
+def create_parser():
+    parser = argparse.ArgumentParser(
+        prog="pipup",
+        usage="pipup [--quiet | --verbose] [options]",
+        help="Generate a command to upgrade all installed pip packages.",
+    )
+    output_options = parser.add_mutually_exclusive_group(title="Output options")
+    output_options.add_argument(
+        "-v",
+        "--verbose",
+        help="enable verbose output (useful for debugging)",
+        action="store_true",
+        dest="verbose",
+    )
+    output_options.add_argument(
+        "-q",
+        "--quiet",
+        help="suppress output (currently unused; '--run' will always output)",
+        action="store_true",
+        dest="quiet",
+    )
+    script_options = parser.add_argument_group(title="Script options")
+    script_options.add_argument(
+        "-r",
+        "--run",
+        help="run the output command instead of printing it (not recommended)",
+        action="store_true",
+        dest="run",
+    )
+    script_options.add_argument(
+        "-o",
+        "--outdated",
+        help="only list the outdated packages",
+        action="store_true",
+        dest="outdated",
+    )
+    script_options.add_argument(
+        "--skip-checks",
+        help="skip checking the output of the 'pip list' command and parse it directly",
+        action="store_true",
+        dest="skip_checks",
+    )
+    script_options.add_argument(
+        "-n",
+        "--no-cache-dir",
+        action="store_false",
+        help="append '--no-cache-dir' to the 'pip upgrade' command",
+        dest="cache_dir",
+    )
+    python_options = parser.add_argument_group(title="Python launcher options")
+    python_options.add_argument(
+        "-c",
+        "--prefix",
+        help="\n".join(
+            [
+                "prepend COMMAND before each 'pip' command.\n",
+                "(defaults to 'py -[version] -m' on Windows and 'python[version] -m' on Unix.",
+            ]
+        ),
+        metavar="COMMAND",
+        default=None,
+        nargs="?",
+        dest="prefix",
+    )
+    python_options.add_argument(
+        "-p",
+        "--python-version",
+        help="the version of Python to use [default: 3]",
+        nargs="?",
+        metavar="VERSION",
+        default=None,
+        dest="version",
+    )
 
 
 # ----- INTERACTIVE CODE ----
