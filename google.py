@@ -35,35 +35,26 @@ def create_parser():
     )
     parser.add_argument(
         "--clipboard",
-        help="enable both --copy and --paste (you can also use -cv)",
+        help="enable both --copy and --paste (you can also use -cp)",
         action="store_true",
         dest="clipboard",
-    )
-    parser.add_argument(
-        "--clean",
-        "--clean-output",
-        help="only output the extracted URLs separated by newlines",
-        action="store_true",
-        dest="clean_output",
     )
     parser.add_argument(
         "urls",
         help="the Google search URL(s), default is to read from stdin",
         metavar="URLs",
-        nargs=argparse.REMAINDER,
+        nargs="*",
     )
     return parser
 
 
 def configure(args: argparse.Namespace):
-    clean_output, clipboard, copy, paste, urls, = (
-        args.clean_output,
+    clipboard, copy, paste, urls, = (
         args.clipboard,
         args.copy,
         args.paste,
         args.urls,
     )
-    clean_printer = print
     printer = print
 
     # Use modular checks
@@ -76,18 +67,14 @@ def configure(args: argparse.Namespace):
 
     if paste:
         printer = pyperclip.copy
-        clean_output = True
 
-    if clean_output:
-        clean_printer = lambda *a, **k: False  # noqa: E731
-
-    return urls, clean_printer, printer
+    return urls, printer
 
 
 def main(args: List[str] = None):
     parser = create_parser()
     parsed_args = parser.parse_args(args)
-    urls, clean_printer, printer = configure(parsed_args)
+    urls, printer = configure(parsed_args)
     # Use stdin if no URLs were given, like a good program :>
     if not urls:
         urls = (url.strip() for url in sys.stdin.read().splitlines())
@@ -98,7 +85,7 @@ def main(args: List[str] = None):
         if output:
             printer(output)
         else:
-            clean_printer(f"No URL found for {url}")
+            print(f"No URL found for {url}", file=sys.stderr)
 
 
 if __name__ == "__main__":
