@@ -122,9 +122,10 @@ def generate_upgrade_command(
         return output
 
 
-def show_help(*args, exit_after=True, **kwargs):
-    print(__doc__)
-    if exit_after:
+# Create help command override
+class DocstringHelp(argparse.Action):
+    def __call__(*args, **kwargs):
+        print(__doc__)
         raise SystemExit
 
 
@@ -138,7 +139,11 @@ def create_parser():
     )
     # Override help command
     parser.add_argument(
-        "-h", "--help", help="show this help message and exit", action=show_help
+        "-h",
+        "--help",
+        help="show this help message and exit",
+        nargs=0,
+        action=DocstringHelp,
     )
 
     output_options = parser.add_mutually_exclusive_group()
