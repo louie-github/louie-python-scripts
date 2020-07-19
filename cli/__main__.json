@@ -1,5 +1,8 @@
 {
-    "usage": "louie [options] module [args...]",
+    "parser": {
+        "prog": "louie",
+        "usage": "louie [options] module [args...]"
+    },
     "arguments": {
         "module": {
             "help": "the module or script to run"
