@@ -12,7 +12,7 @@ class JSONArgumentParser(argparse.ArgumentParser):
         # Case 1: json_data is a file object
         json_data = self._load_json(json_file)
         self._parse_parser(json_data["parser"])
-        self._parse_arguments(self, json_data["arguments"])
+        self._parse_arguments(json_data["arguments"])
         self._parse_groups(json_data["groups"])
 
     @staticmethod
@@ -53,7 +53,7 @@ class JSONArgumentParser(argparse.ArgumentParser):
         _process_argument = self._process_argument
 
         for name, kwargs in data.items():
-            names, kwargs = _process_argument()
+            names, kwargs = _process_argument(name, kwargs)
             self.add_argument(*names, **kwargs)
 
     def _parse_groups(self, data: dict):
