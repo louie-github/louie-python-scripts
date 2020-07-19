@@ -5,7 +5,6 @@
     "description": "Generate a command to upgrade all installed pip packages.",
     "add_help": false
   },
-  "arguments": {},
   "groups": {
     "output_options": {
       "mutually_exclusive": true,
