@@ -1,15 +1,15 @@
 {
-    "parser": {
-        "prog": "louie",
-        "usage": "louie [options] module [args...]"
+  "parser": {
+    "prog": "louie",
+    "usage": "louie [options] module [args...]"
+  },
+  "arguments": {
+    "module": {
+      "help": "the module or script to run"
     },
-    "arguments": {
-        "module": {
-            "help": "the module or script to run"
-        },
-        "args": {
-            "help": "The arguments to pass to the module's main function.",
-            "nargs": "argparse.REMAINDER"
-        }
+    "args": {
+      "help": "the arguments to pass to the module's main function.",
+      "nargs": "argparse.REMAINDER"
     }
+  }
 }
