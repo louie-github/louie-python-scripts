@@ -23,6 +23,7 @@ Python launcher options:
 """
 
 import argparse
+import os
 import re
 import shlex
 import string
@@ -32,6 +33,10 @@ import sys
 from collections import deque
 from typing import Iterable, List
 
+from core.json_argparse import JSONArgumentParser
+
+fname = os.path.split(__file__)[-1].rsplit(".", 1)[0]
+CLI_JSON_CONFIG_FILE = os.path.join(os.path.dirname(__file__), "cli", f"{fname}.json")
 
 __all__ = ["get_packages", "generate_upgrade_command"]
 
@@ -131,12 +136,7 @@ class DocstringHelp(argparse.Action):
 
 # Standard argument parsing API
 def create_parser():
-    parser = argparse.ArgumentParser(
-        prog="pipup",
-        usage="pipup [--quiet | --verbose] [options]",
-        description="Generate a command to upgrade all installed pip packages.",
-        add_help=False,
-    )
+    parser = JSONArgumentParser(CLI_JSON_CONFIG_FILE)
     # Override help command
     parser.add_argument(
         "-h",
@@ -145,83 +145,6 @@ def create_parser():
         nargs=0,
         action=DocstringHelp,
     )
-
-    output_options = parser.add_mutually_exclusive_group()
-    output_options.add_argument(
-        "-v",
-        "--verbose",
-        help="enable verbose output (useful for debugging)",
-        action="store_true",
-        dest="verbose",
-    )
-    output_options.add_argument(
-        "-q",
-        "--quiet",
-        help="suppress output (currently unused; '--run' will always output)",
-        action="store_true",
-        dest="quiet",
-    )
-
-    script_options = parser.add_argument_group(title="script options")
-    script_options.add_argument(
-        "-r",
-        "--run",
-        help="run the output command instead of printing it (not recommended)",
-        action="store_true",
-        dest="run",
-    )
-    script_options.add_argument(
-        "-o",
-        "--outdated",
-        help="only list the outdated packages",
-        action="store_true",
-        dest="outdated",
-    )
-    script_options.add_argument(
-        "--skip-checks",
-        help="skip checking the output of the 'pip list' command and parse it directly",
-        action="store_true",
-        dest="skip_checks",
-    )
-    script_options.add_argument(
-        "-n",
-        "--no-cache-dir",
-        action="store_true",
-        help="append '--no-cache-dir' to the 'pip upgrade' command",
-        dest="no_cache_dir",
-    )
-
-    python_options = parser.add_argument_group(title="Python launcher options")
-    python_options.add_argument(
-        "-c",
-        "--prefix",
-        help=(
-            "add the prefix COMMAND before each 'pip' command "
-            "[default: 'py -[version] -m' on Windows, 'python[version] -m' on Unix]"
-        ),
-        metavar="COMMAND",
-        nargs="?",
-        default=None,
-        dest="prefix",
-    )
-    python_options.add_argument(
-        "-p",
-        "--python",
-        "--python-version",
-        help="the version of Python to use [default: 3]",
-        metavar="VERSION",
-        nargs="?",
-        default="3",
-        dest="python_version",
-    )
-    python_options.add_argument(
-        "--no-py",
-        "--no-py-launcher",
-        help="disable using the 'py' launcher on Windows",
-        action="store_false",
-        dest="use_py",
-    )
-
     return parser
 
 

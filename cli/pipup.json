@@ -3,7 +3,7 @@
     "prog": "pipup",
     "usage": "pipup [--quiet | --verbose] [options]",
     "description": "Generate a command to upgrade all installed pip packages.",
-    "add_help": false,
+    "add_help": false
   },
   "arguments": {},
   "groups": {

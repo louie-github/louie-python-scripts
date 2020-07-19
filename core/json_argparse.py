@@ -9,14 +9,26 @@ from typing import TextIO, Union
 
 class JSONArgumentParser(argparse.ArgumentParser):
     def __init__(self, json_file: Union[str, TextIO], *args, **kwargs):
-        # Case 1: json_data is a file object
         json_data = self._load_json(json_file)
-        self._parse_parser(json_data["parser"])
-        self._parse_arguments(json_data["arguments"])
-        self._parse_groups(json_data["groups"])
+        self.json_data = json_data
+
+        # Copy JSON data to preserve the original
+        json_data = json_data.copy()
+
+        if parser_data := json_data.get("parser"):
+            self._parse_parser(parser_data)
+
+        if arguments_data := json_data.get("arguments"):
+            self._parse_arguments(arguments_data)
+
+        if groups_data := json_data.get("groups"):
+            self._parse_groups(groups_data)
+
+        self._json_data_after_parsing = json_data
 
     @staticmethod
     def _load_json(json_file: Union[str, bytes, bytearray, TextIO]):
+        # Case 1: json_data is a file object
         try:
             return json.load(json_file)
         except AttributeError:
@@ -44,7 +56,7 @@ class JSONArgumentParser(argparse.ArgumentParser):
             kwargs["nargs"] = argparse.REMAINDER
         # 2. Get the additional aliases of the option
         names = [name]
-        names.extend(kwargs.get("aliases", []))
+        names.extend(kwargs.pop("aliases", []))
 
         return names, kwargs
 
@@ -57,8 +69,6 @@ class JSONArgumentParser(argparse.ArgumentParser):
             self.add_argument(*names, **kwargs)
 
     def _parse_groups(self, data: dict):
-        # We will mutate the dict, so make a copy
-        data = data.copy()
         # Cache the dictionary lookup
         _process_argument = self._process_argument
 
