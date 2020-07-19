@@ -12,7 +12,8 @@ class JSONArgumentParser(argparse.ArgumentParser):
         # Case 1: json_data is a file object
         json_data = self._load_json(json_file)
         self._parse_parser(json_data["parser"])
-        self._parse_arguments(json_data["arguments"])
+        self._parse_arguments(self, json_data["arguments"])
+        self._parse_groups(json_data["groups"])
 
     @staticmethod
     def _load_json(json_file: Union[str, bytes, bytearray, TextIO]):
@@ -35,16 +36,46 @@ class JSONArgumentParser(argparse.ArgumentParser):
     def _parse_parser(self, data: dict):
         return super().__init__(**data)
 
-    def _parse_arguments(self, data: dict):
-        for name, kwargs in data.items():
-            # Processing steps:
-            # 1. Replace the str 'argparse.REMAINDER' with the actual argparse.REMAINDER
-            if kwargs.get("nargs") == "argparse.REMAINDER":
-                kwargs["nargs"] = argparse.REMAINDER
-            # 2. Get the additional aliases of the option
-            names = [name]
-            names.extend(kwargs.get("aliases", []))
+    @staticmethod
+    def _process_argument(name, kwargs):
+        # Processing steps:
+        # 1. Replace the str 'argparse.REMAINDER' with the actual argparse.REMAINDER
+        if kwargs.get("nargs") == "argparse.REMAINDER":
+            kwargs["nargs"] = argparse.REMAINDER
+        # 2. Get the additional aliases of the option
+        names = [name]
+        names.extend(kwargs.get("aliases", []))
 
-            # FINAL: Call add_argument  with the option name(s) as positional
-            # arguments and all other arguments as keyword arguments
+        return names, kwargs
+
+    def _parse_arguments(self, data: dict):
+        # Cache the dictionary lookup
+        _process_argument = self._process_argument
+
+        for name, kwargs in data.items():
+            names, kwargs = _process_argument()
             self.add_argument(*names, **kwargs)
+
+    def _parse_groups(self, data: dict):
+        # We will mutate the dict, so make a copy
+        data = data.copy()
+        # Cache the dictionary lookup
+        _process_argument = self._process_argument
+
+        for group_name, group_kwargs in data.items():
+            # Remove 'arguments' and 'mutually_exclusive' so we don't
+            # accidentally pass them as keyword arguments
+            arguments = group_kwargs.pop("arguments", None)
+            mutually_exclusive = group_kwargs.pop("mutually_exclusive", False)
+
+            # Create the group
+            if mutually_exclusive:
+                group = self.add_mutually_exclusive_group(**group_kwargs)
+            else:
+                group = self.add_argument_group(**group_kwargs)
+
+            # Add arguments to group
+            if arguments is not None:
+                for name, kwargs in arguments.items():
+                    names, kwargs = _process_argument(name, kwargs)
+                    group.add_argument(*names, **kwargs)
