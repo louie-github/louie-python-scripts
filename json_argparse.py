@@ -11,23 +11,27 @@ from typing import TextIO, Union
 class JSONArgumentParser(argparse.ArgumentParser):
     def __init__(self, json_file: Union[str, TextIO], *args, **kwargs):
         # Case 1: json_data is a file object
+        json_data = self._load_json(json_file)
+        self._parse_parser(json_data)
+        self._parse_arguments(json_data)
+
+    @staticmethod
+    def _load_json(json_file: Union[str, bytes, bytearray, TextIO]):
         try:
-            json.load(json_file)
+            return json.load(json_file)
         except AttributeError:
             # Case 2: json_data is a filename
             try:
                 with open(json_file) as f:
-                    json_data = json.load(f)
+                    return json.load(f)
             except FileNotFoundError:
                 # Case 3: json_data is str with JSON data
                 try:
-                    json_data = json.loads(json_file)
+                    return json.loads(json_file)
                 except json.JSONDecodeError:
                     raise ValueError(
-                        "Expected a file-like object, filename, or str with JSON data for argument 'json_file'"
+                        "Expected a filename, file-like object, or str with JSON data for argument 'json_file'"
                     )
-        self._parse_parser(json_data)
-        self._parse_arguments(json_data)
 
     def _parse_parser(self, data: dict):
         return super().__init__(self, **data)
@@ -45,4 +49,3 @@ class JSONArgumentParser(argparse.ArgumentParser):
             # FINAL: Call add_argument  with the option name(s) as positional
             # arguments and all other arguments as keyword arguments
             self.add_argument(*names, **kwargs)
-
