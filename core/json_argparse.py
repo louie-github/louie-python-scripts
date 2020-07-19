@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import inspect
 import json
 
 from typing import TextIO, Union
@@ -12,8 +11,8 @@ class JSONArgumentParser(argparse.ArgumentParser):
     def __init__(self, json_file: Union[str, TextIO], *args, **kwargs):
         # Case 1: json_data is a file object
         json_data = self._load_json(json_file)
-        self._parse_parser(json_data)
-        self._parse_arguments(json_data)
+        self._parse_parser(json_data["parser"])
+        self._parse_arguments(json_data["arguments"])
 
     @staticmethod
     def _load_json(json_file: Union[str, bytes, bytearray, TextIO]):
@@ -34,7 +33,7 @@ class JSONArgumentParser(argparse.ArgumentParser):
                     )
 
     def _parse_parser(self, data: dict):
-        return super().__init__(self, **data)
+        return super().__init__(**data)
 
     def _parse_arguments(self, data: dict):
         for name, kwargs in data.items():
@@ -44,7 +43,7 @@ class JSONArgumentParser(argparse.ArgumentParser):
                 kwargs["nargs"] = argparse.REMAINDER
             # 2. Get the additional aliases of the option
             names = [name]
-            names.append(kwargs.get("aliases", []))
+            names.extend(kwargs.get("aliases", []))
 
             # FINAL: Call add_argument  with the option name(s) as positional
             # arguments and all other arguments as keyword arguments
