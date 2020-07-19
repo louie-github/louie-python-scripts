@@ -1,0 +1,12 @@
+{
+    "usage": "louie [options] module [args...]",
+    "arguments": {
+        "module": {
+            "help": "the module or script to run"
+        },
+        "args": {
+            "help": "The arguments to pass to the module 's main function.",
+            "nargs": "argparse.REMAINDER"
+        }
+    }
+}
