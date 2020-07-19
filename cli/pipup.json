@@ -1,0 +1,83 @@
+{
+  "parser": {
+    "prog": "pipup",
+    "usage": "pipup [--quiet | --verbose] [options]",
+    "description": "Generate a command to upgrade all installed pip packages.",
+    "add_help": false,
+  },
+  "arguments": {},
+  "groups": {
+    "output_options": {
+      "mutually_exclusive": true,
+      "arguments": {
+        "-v": {
+          "aliases": ["--verbose"],
+          "help": "enable verbose output (useful for debugging)",
+          "action": "store_true",
+          "dest": "verbose"
+        },
+        "-q": {
+          "aliases": ["--quiet"],
+          "help": "suppress output (currently unused; '--run' will always output)",
+          "action": "store_true",
+          "dest": "quiet"
+        }
+      }
+    },
+    "script_options": {
+      "title": "script options",
+      "arguments": {
+        "-r": {
+          "aliases": ["--run"],
+          "help": "run the output command instead of printing it (not recommended)",
+          "action": "store_true",
+          "dest": "run"
+        },
+        "-o": {
+          "aliases": ["--outdated"],
+          "help": "only list the outdated packages",
+          "action": "store_true",
+          "dest": "outdated"
+        },
+        "--skip-checks": {
+          "help": "skip checking the output of the 'pip list' command and parse it directly",
+          "action": "store_true",
+          "dest": "skip_checks"
+        },
+        "-n": {
+          "aliases": ["--no-cache-dir"],
+          "action": "store_true",
+          "help": "append '--no-cache-dir' to the 'pip upgrade' command",
+          "dest": "no_cache_dir"
+        }
+      }
+    },
+    "python_options": {
+      "title": "Python launcher options",
+      "arguments": {
+        "-c": {
+          "aliases": ["--prefix"],
+          "help": "add the prefix COMMAND before each 'pip' command [default: 'py -[version] -m' on Windows, 'python[version] -m' on Unix]",
+          "metavar": "COMMAND",
+          "nargs": "?",
+          "default": null,
+          "dest": "prefix"
+        },
+        "-p": {
+          "aliases": ["--python", "--python-version"],
+          "help": "the version of Python to use [default: 3]",
+          "metavar": "VERSION",
+          "nargs": "?",
+          "default": "3",
+          "dest": "python_version"
+        },
+        "--no-py": {
+          "aliases": ["--no-py-launcher"],
+          "help": "disable using the 'py' launcher on Windows",
+          "action": "store_false",
+          "dest": "use_py"
+        }
+      }
+    }
+  }
+}
