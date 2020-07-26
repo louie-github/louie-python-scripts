@@ -1,0 +1,28 @@
+{
+  "parser": {
+    "prog": "louie",
+    "usage": "louie [options] module [args...]"
+  },
+  "arguments": {
+    "module": {
+      "help": "the module or script to run"
+    },
+    "args": {
+      "help": "the arguments to pass to the module's main function.",
+      "nargs": "argparse.REMAINDER"
+    }
+  },
+  "groups": {
+    "output_options": {
+      "mutually_exclusive": false,
+      "arguments": {
+        "-v": {
+          "aliases": ["--verbose"],
+          "help": "enable verbose output (useful for debugging)",
+          "action": "store_true",
+          "dest": "verbose"
+        }
+      }
+    }
+  }
+}
