@@ -39,7 +39,6 @@ Python launcher options:
 """
 
 import argparse
-import os
 import re
 import shlex
 import string
@@ -47,12 +46,12 @@ import subprocess
 import sys
 
 from collections import deque
+from pathlib import Path
 from typing import Iterable, List
 
 from core import JSONArgumentParser
 
-fname = os.path.split(__file__)[-1].rsplit(".", 1)[0]
-CLI_JSON_CONFIG_FILE = os.path.join(os.path.dirname(__file__), "cli", f"{fname}.json")
+CLI_JSON_CONFIG_FILE = Path(__file__).parent / "cli" / f"{Path(__file__).stem}.json"
 
 __all__ = ["get_packages", "generate_upgrade_command"]
 
