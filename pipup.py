@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 # Copyright 2020 louie-github
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
 #    http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,7 +49,7 @@ import sys
 from collections import deque
 from typing import Iterable, List
 
-from core.json_argparse import JSONArgumentParser
+from core import JSONArgumentParser
 
 fname = os.path.split(__file__)[-1].rsplit(".", 1)[0]
 CLI_JSON_CONFIG_FILE = os.path.join(os.path.dirname(__file__), "cli", f"{fname}.json")
