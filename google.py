@@ -22,12 +22,16 @@ import re
 import sys
 
 from functools import partial
+from pathlib import Path
 from typing import List
 from urllib.parse import unquote
 
 
 import pyperclip
 
+from .core import JSONArgumentParser
+
+CLI_JSON_CONFIG_FILE = Path(__file__).parent / "cli" / f"{Path(__file__).stem}.json"
 
 URL_REGEX = re.compile("url=([^&]*)")
 
@@ -39,32 +43,7 @@ def get_url(google_url: str, regex=URL_REGEX):
 
 
 def create_parser():
-    parser = argparse.ArgumentParser(
-        prog="google", description="Extract the direct URL from a Google search."
-    )
-    parser.add_argument(
-        "-c", "--copy", help="read URL from clipboard", action="store_true", dest="copy"
-    )
-    parser.add_argument(
-        "-p",
-        "--paste",
-        help="paste extracted URL to clipboard",
-        action="store_true",
-        dest="paste",
-    )
-    parser.add_argument(
-        "--clipboard",
-        help="enable both --copy and --paste (you can also use -cp)",
-        action="store_true",
-        dest="clipboard",
-    )
-    parser.add_argument(
-        "urls",
-        help="the Google search URL(s), default is to read from stdin",
-        metavar="URLs",
-        nargs="*",
-    )
-    return parser
+    return JSONArgumentParser(json_file=CLI_JSON_CONFIG_FILE)
 
 
 def configure(args: argparse.Namespace):

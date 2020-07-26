@@ -1,0 +1,29 @@
+{
+  "parser": {
+    "prog": "google"
+  },
+  "arguments": {
+    "-c": {
+      "aliases": ["--copy"],
+      "help": "read URL from clipboard",
+      "action": "store_true",
+      "dest": "copy"
+    },
+    "-p": {
+      "aliases": ["--paste"],
+      "help": "paste extracted URL to clipboard",
+      "action": "store_true",
+      "dest": "paste"
+    },
+    "--clipboard": {
+      "help": "enable both --copy and --paste (you can also use -cp)",
+      "action": "store_true",
+      "dest": "clipboard"
+    },
+    "urls": {
+      "help": "the Google search URL(s), default is to read from stdin",
+      "metavar": "URLs",
+      "nargs": "*"
+    }
+  }
+}
