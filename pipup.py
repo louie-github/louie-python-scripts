@@ -144,7 +144,7 @@ def generate_upgrade_command(
 
 # Create help command override
 class DocstringHelp(argparse.Action):
-    def __call__(*args, **kwargs):
+    def __call__(self, *args, **kwargs):
         print(__doc__)
         raise SystemExit
 
