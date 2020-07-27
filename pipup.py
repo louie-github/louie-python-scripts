@@ -62,26 +62,24 @@ PIP_UPGRADE_COMMAND = ["pip", "install", "--upgrade"]
 PIP_LIST_REGEX = re.compile(r"([\S]*) *(.*)")
 
 
-# Support for Python <3.8
+# Add shlex.join functionality for Python <3.8
 try:
-    shlex.join(["ignore", "this", "command"])
+    shlex.join(["command"])
 except AttributeError:
 
+    # Copy code from Python 3.8
     def _shlex_join(split_command):
         """Return a shell-escaped string from *split_command*."""
         return " ".join(shlex.quote(arg) for arg in split_command)
 
     shlex.join = _shlex_join
 
-# By default, verbose printing is off.
-vprint = lambda *args, **kwargs: None  # noqa E731
-
-# Regular printing is on.
+# By default, verbose printing is off and regular message printing is on.
+vprint = lambda *args, **kwargs: None  # noqa: E731
 rprint = print
 
 
 def _remove_whitespace(text, whitespace=string.whitespace):
-    # Could also be text.translate(str.maketrans('', '', whitespace)
     return "".join(c for c in text if c not in whitespace)
 
 
@@ -97,15 +95,16 @@ def _check_pip_list_prefix(lines):
 
 
 def get_packages(
-    list_command=PIP_LIST_COMMAND, regex=PIP_LIST_REGEX, skip_checks=False
+    list_command: Iterable = PIP_LIST_COMMAND,
+    regex: Iterable = PIP_LIST_REGEX,
+    skip_checks=False,
 ):
     sys_encoding = sys.stdout.encoding
     vprint(f"Running 'pip list' command: {list_command}")
     output = subprocess.check_output(list_command)
     if not output:
         return
-    # Parse output into a list of lines and decode into str
-    # (also strip whitespace)
+    # Parse output into a list of lines
     lines = [line.decode(sys_encoding).strip() for line in output.splitlines()]
     # Check if output has the expected prefix lines
     if not skip_checks:
@@ -117,7 +116,7 @@ def get_packages(
             )
     else:
         vprint("Skipped 'pip list' output checks.")
-    # Skip first two lines
+    # Ignore prefix lines when matching
     for line in lines[2:]:
         match = regex.match(line)
         if match:
@@ -142,14 +141,14 @@ def generate_upgrade_command(
         return output
 
 
-# Create help command override
+# Create help command override class
 class DocstringHelp(argparse.Action):
     def __call__(self, *args, **kwargs):
         print(__doc__)
         raise SystemExit
 
 
-# Standard argument parsing API
+# Override help command after loading JSON argument parser
 def create_parser():
     parser = JSONArgumentParser(CLI_JSON_CONFIG_FILE)
     # Override help command

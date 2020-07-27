@@ -32,7 +32,6 @@ import pyperclip
 from core import JSONArgumentParser
 
 CLI_JSON_CONFIG_FILE = Path(__file__).parent / "cli" / f"{Path(__file__).stem}.json"
-
 URL_REGEX = re.compile("url=([^&]*)")
 
 

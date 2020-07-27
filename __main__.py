@@ -24,7 +24,6 @@ from typing import List
 # Add directory to path so we can import the scripts
 sys.path.append(str(Path(__file__).parent))
 
-# Import JSON argparse script
 from core import JSONArgumentParser  # noqa: E402
 
 CLI_JSON_CONFIG_FILE = Path(__file__).parent / "cli" / f"{Path(__file__).stem}.json"
