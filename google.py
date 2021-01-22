@@ -26,7 +26,7 @@ def get_url(google_url: str, regex=URL_REGEX):
 
 
 def create_parser():
-    return JSONArgumentParser(json_file=CLI_JSON_CONFIG_FILE)
+    return JSONArgumentParser(CLI_JSON_CONFIG_FILE)
 
 
 def configure(args: argparse.Namespace):
@@ -61,7 +61,7 @@ def main(args: List[str] = None):
 
     # Use stdin if no URLs were given, like a good program :>
     if not urls:
-        urls = (url.strip() for url in sys.stdin.read().splitlines())
+        urls = sys.stdin.read().splitlines()
 
     # Main loop
     for url in urls:

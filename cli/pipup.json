@@ -2,8 +2,7 @@
   "parser": {
     "prog": "pipup",
     "usage": "pipup [--quiet | --verbose] [options]",
-    "description": "Generate a command to upgrade all installed pip packages.",
-    "add_help": false
+    "description": "Generate a command to upgrade all installed pip packages."
   },
   "groups": {
     "output_options": {
@@ -17,7 +16,7 @@
         },
         "-q": {
           "aliases": ["--quiet"],
-          "help": "suppress output (currently unused; '--run' will always output)",
+          "help": "suppress additional information output",
           "action": "store_true",
           "dest": "quiet"
         }
@@ -34,7 +33,7 @@
         },
         "-o": {
           "aliases": ["--outdated"],
-          "help": "only list the outdated packages",
+          "help": "only list the outdated packages (append --outdated to pip list)",
           "action": "store_true",
           "dest": "outdated"
         },
@@ -56,7 +55,7 @@
       "arguments": {
         "-c": {
           "aliases": ["--prefix"],
-          "help": "add the prefix COMMAND before each 'pip' command [default: 'py -[version] -m' on Windows, 'python[version] -m' on Unix]",
+          "help": "add the prefix COMMAND before each 'pip' command",
           "metavar": "COMMAND",
           "nargs": "?",
           "default": null,
@@ -72,7 +71,7 @@
         },
         "--no-py": {
           "aliases": ["--no-py-launcher"],
-          "help": "disable using the 'py' launcher on Windows",
+          "help": "do not use the 'py' launcher on Windows",
           "action": "store_false",
           "dest": "use_py"
         }

@@ -1,28 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Usage: pipup [--quiet | --verbose] [options]
-
-Generate a command to upgrade all installed pip packages.
-
-Optional arguments:
-  -h, --help                show this help message and exit
-  -v, --verbose             enable verbose output (useful for debugging)
-  -q, --quiet               suppress output (currently unused; '--run' will always output)
-
-Script options:
-  -r, --run                 run the output command instead of printing it (not recommended)
-  -o, --outdated            only list the outdated packages
-  --skip-checks             skip checking the output of the 'pip list' command and parse it directly
-  -n, --no-cache-dir        append '--no-cache-dir' to the 'pip upgrade' command
-
-Python launcher options:
-  -c, --prefix [COMMAND]    add the prefix COMMAND before each 'pip' command
-                            [default: 'py -[version] -m' on Windows, 'python[version] -m' on Unix]
-  -p, --python [VERSION]    the version of Python to use [default: 3]
-  --no-py[-launcher]        disable using the 'py' launcher on Windows
-"""
-
 import argparse
 import re
 import shlex
@@ -59,9 +37,18 @@ except AttributeError:
 
     shlex.join = _shlex_join
 
-# By default, verbose printing is off and regular message printing is on.
-vprint = lambda *args, **kwargs: None  # noqa: E731
-rprint = print
+
+def no_print(*args, **kwargs):
+    pass
+
+
+def debug_print(text=None, **kwargs):
+    # Do not add debug prefix if string is empty or not given
+    # Emulate behavior of print() [vprint() == print()]
+    if not text:
+        print(**kwargs)
+    else:
+        print(f"[DEBUG] {text}")
 
 
 def _remove_whitespace(text, whitespace=string.whitespace):
@@ -119,6 +106,7 @@ def generate_upgrade_command(
     packages = packages if packages is not None else get_packages(*args, **kwargs)
     packages = list(packages)
     vprint(f"Found packages: {packages}")
+
     output = list(upgrade_command) + packages
     if join_output:
         return shlex.join(output)
@@ -126,41 +114,23 @@ def generate_upgrade_command(
         return output
 
 
-# Create help command override class
-class DocstringHelp(argparse.Action):
-    def __call__(self, *args, **kwargs):
-        print(__doc__)
-        raise SystemExit
-
-
-# Override help command after loading JSON argument parser
 def create_parser():
-    parser = JSONArgumentParser(CLI_JSON_CONFIG_FILE)
-    # Override help command
-    parser.add_argument(
-        "-h",
-        "--help",
-        help="show this help message and exit",
-        nargs=0,
-        action=DocstringHelp,
-    )
-    return parser
+    return JSONArgumentParser(CLI_JSON_CONFIG_FILE)
 
 
 def configure(args: argparse.Namespace):
-    # Manually define help command behavior
-    if args.help:
-        print(__doc__)
-        raise SystemExit
     global rprint, vprint
 
-    if args.verbose:
+    # By default, verbose printing is off and regular message printing is on.
+    rprint = print
+    vprint = no_print
 
-        def vprint(text, *args, **kwargs):
-            print(f"[DEBUG] {text}")
+    if args.verbose:
+        vprint = debug_print
 
     elif args.quiet:
-        rprint = vprint = lambda *args, **kwargs: None
+        rprint = no_print
+        vprint = no_print
 
     vprint(f"Parsed arguments: {args}")
 
@@ -168,18 +138,23 @@ def configure(args: argparse.Namespace):
     pip_list_command = deque(PIP_LIST_COMMAND)
     pip_upgrade_command = deque(PIP_UPGRADE_COMMAND)
 
-    # Main argument parsing
+    # Create command prefix
     is_windows = sys.platform.startswith("win32")
     python_version = args.python_version.strip()
-    # Apply prefixes in order of: args.prefix, Windows py launcher, python[version]
+
+    # Custom prefix: read prefix from command line arguments
     if args.prefix is not None:
         prefix = shlex.split(args.prefix)
+    # Windows: Use py launcher by default, fall back to "python" command
     elif is_windows:
         if args.use_py:
             prefix = PY_LAUNCHER_COMMAND.copy()
+            # Replace the "<python-version>" placeholder with the actual
+            # installed Python version string
             prefix[prefix.index("<python-version>")] = f"-{python_version}"
         else:
             prefix = ["python", "-m"]
+    # Unix / other systems: Use python[version] format command
     else:
         prefix = [f"python{python_version}", "-m"]
 
@@ -196,7 +171,6 @@ def configure(args: argparse.Namespace):
     return pip_list_command, pip_upgrade_command
 
 
-# ----- INTERACTIVE CODE ----
 def main(args: List[str] = None):
     # Parse arguments
     parser = create_parser()
@@ -211,8 +185,7 @@ def main(args: List[str] = None):
     vprint(f"pip_upgrade_command: {pip_upgrade_command}")
 
     # Main code
-    packages = get_packages(list_command=pip_list_command)
-    packages = list(packages)
+    packages = list(get_packages(list_command=pip_list_command))
     if not packages:
         if parsed_args.outdated:
             rprint("All packages are up to date. Exiting normally.")
@@ -222,6 +195,7 @@ def main(args: List[str] = None):
             )
             vprint("Exiting normally.")
         raise SystemExit
+
     if parsed_args.run:
         command = generate_upgrade_command(
             packages, upgrade_command=pip_upgrade_command, join_output=False
@@ -231,6 +205,7 @@ def main(args: List[str] = None):
         command = generate_upgrade_command(
             packages, upgrade_command=pip_upgrade_command, join_output=True
         )
+        vprint()
         print(command)
 
 
