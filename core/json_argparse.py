@@ -46,39 +46,42 @@ class JSONArgumentParser(argparse.ArgumentParser):
                     )
 
     def _parse_parser(self, data: dict):
+        # Pass processed JSON data as keyword arguments to
+        # parent class (ArgumentParser)
         return super().__init__(**data)
 
     @staticmethod
     def _process_argument(name, kwargs):
-        # Processing steps:
-        # 1. Replace the str 'argparse.REMAINDER' with the actual argparse.REMAINDER
+        # Replace any occurrences of "argparse.REMAINDER" in the JSON
+        # config file with the actual value of argparse.REMAINDER
         if kwargs.get("nargs") == "argparse.REMAINDER":
             kwargs["nargs"] = argparse.REMAINDER
-        # 2. Get the additional aliases of the option
-        names = [name]
-        names.extend(kwargs.pop("aliases", []))
+
+        # Group the main name of the argument with its aliases
+        names = [name, *kwargs.pop("aliases", [])]
 
         return names, kwargs
 
     def _parse_arguments(self, data: dict):
-        # Cache the dictionary lookup
+        # Cache the variable lookup
         _process_argument = self._process_argument
 
+        # Add arguments
         for name, kwargs in data.items():
             names, kwargs = _process_argument(name, kwargs)
             self.add_argument(*names, **kwargs)
 
     def _parse_groups(self, data: dict):
-        # Cache the dictionary lookup
+        # Cache the variable lookup
         _process_argument = self._process_argument
 
         for group_name, group_kwargs in data.items():
-            # Remove 'arguments' and 'mutually_exclusive' so we don't
-            # accidentally pass them as keyword arguments
+            # Remove the options "arguments" and "mutually_exclusive"
+            # so we don't accidentally pass them as keyword arguments
             arguments = group_kwargs.pop("arguments", None)
             mutually_exclusive = group_kwargs.pop("mutually_exclusive", False)
 
-            # Create the group
+            # Create the argument group
             if mutually_exclusive:
                 group = self.add_mutually_exclusive_group(**group_kwargs)
             else:
